@@ -1,5 +1,5 @@
 {
-  "version": "0.0.7",
+  "version": "0.0.8",
   "name": "noodletalk",
   "description": "noodletalk your shit up",
   "icons": {
@@ -9,7 +9,7 @@
     "114": "/images/apple-touch-icon-iphone4.png",
   },
   "developer": {
-    "name": "Jennifer Fong",
+    "name": "Edna Piranha",
     "url": "http://ednapiranha.com/"
   }
 }

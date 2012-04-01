@@ -1,6 +1,6 @@
 {
   "name": "noodletalk",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": true,
   "engines": {
     "node": ">= 0.6.5",
@@ -17,6 +17,7 @@
     "request": "2.9.153",
     "should": ">= 0.0.1",
     "sinon": ">= 1.0.0",
-    "socket.io": "0.9.2"
+    "socket.io": "0.9.2",
+    "mime": "1.2.5"
   }
 }

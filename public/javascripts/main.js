@@ -47,7 +47,10 @@ $(function() {
           newElement.attr('id', contentID);
           newElement.attr('class', 'hush');
           $('body').append(newElement);
-          $('#'+contentID).animate({'width':440,'height':338, 'margin-left': -220, 'margin-top': -184}, timeToAppear, function() {});
+          $('#'+contentID).animate({
+            'width': 440,'height': 338, 'margin-left': -220, 'margin-top': -184 },
+            timeToAppear, function() {}
+          );
         },timeToAppear);
         $('#hush').fadeIn();
       },timeToFadeIn);
