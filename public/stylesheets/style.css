@@ -368,7 +368,7 @@ form.font8 input, .font8 {
     font-family: 'CamboRegular';
 }
 
-#userList, #help {
+#userList, #help, #channels {
     background-color: #8fe4f9;
     border-radius: 3px;
     box-shadow: #60bdd4 1px 1px 0px;
@@ -393,7 +393,7 @@ form.font8 input, .font8 {
     font-size: 17px;
 }
 
-#userList li {
+#userList li, #channels li {
     background-color: #aaeeff;
     border-radius: 3px;
     height: 26px;
@@ -404,7 +404,7 @@ form.font8 input, .font8 {
     white-space: nowrap;
 }
 
-#userList li:hover {
+#userList li:hover, #channels li:hover {
     background-color: #c7f4ff;
 }
 
@@ -422,12 +422,12 @@ form.font8 input, .font8 {
     padding-right: 5px;
 }
 
-#help h2, #userList h2 {
+#help h2, #userList h2, #channels h2 {
     font-size: 24px;
     margin-bottom: 20px;
 }
 
-#userList h2 ul li {
+#userList h2 ul li, #channels h2 ul li {
     font-size: 18px;
 }
 

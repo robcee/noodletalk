@@ -3,6 +3,7 @@ $(function() {
   var currentChannel = $('body').data('channel');
   var messagesUnread = 0;
   var userList = [];
+  var channelList = [];
   var userCount = 0;
   var logLimit = 80;
   var myPost = false;
@@ -146,6 +147,9 @@ $(function() {
     // Update the user list
     userList = data.user_list;
     
+    // Update the channel list
+    channeList = data.channels;
+
     // Update the user count
     // jcw: Adding one in this call only because we haven't counted our own connection yet.
     userCount = parseInt(data.connected_clients, 10)+1;
@@ -224,6 +228,11 @@ $(function() {
       updateMessage(data);
       updateMedia(data);
     });
+    socket.on('channels', function (data) {
+      channelList = data;
+      console.log(channeList);
+      updateChannelList();
+    });
     socket.emit('join channel', currentChannel);
   });
 
@@ -244,6 +253,19 @@ $(function() {
     }
   };
 
+  var updateChannelList = function() {
+    var channels = $('#channelList');
+    if (channelList instanceof Array) {
+      channels.html('');
+      channelList.forEach(function(channel) {
+        var channelItem = $('<li><a href="/about/' + escape(channel) + '" target="_blank"></a></li>');
+
+        channelItem.find('a').text(channel);
+        channels.append(channelItem);
+      });
+    }
+  };
+
   var keepListSane = function() {
     if (userList.length > userCount) {
       userList.splice(userCount, userList.length - userCount);
@@ -252,8 +274,7 @@ $(function() {
     socket.tabComplete = new TabComplete(userList);
   };
 
-  // close user list
-  $('#userList a.close, form input').click(function() {
-    $('#userList').fadeOut();
+  $('#userList a.close, #channels a.close, form input').click(function() {
+    $('#userList, #channels, #help').fadeOut();
   });
 });

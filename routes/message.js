@@ -1,4 +1,4 @@
-module.exports = function(noodle, app, io, userList, recentMessages) {
+module.exports = function(noodle, app, io, userList, recentMessages, channelList) {
   var auth = require('../lib/authenticate');
   var content = require('../lib/web-remix');
   var messageMaker = require('../lib/message-maker');
@@ -21,13 +21,14 @@ module.exports = function(noodle, app, io, userList, recentMessages) {
       'messages': channelMessages,
       'connected_clients': io.sockets.clients(channel).length,
       'user_list': userList[channel],
+      'channels': channelList
     });
   });
 
   // Add new message
   app.post("/about/:channel/message", function(req, res) {
     var channel = req.params.channel;
-    var message = messageMaker.getMessage(noodle, channel, req, io, userList);
+    var message = messageMaker.getMessage(noodle, channel, req, io, userList, channelList);
     var mediaIframeMatcher = /<iframe\s.+><\/iframe>/i;
     var mediaVideoMatcher = /<video\s.+>.+<\/video>/i;
     var mediaAudioMatcher = /<audio\s.+>.+<\/audio>/i;

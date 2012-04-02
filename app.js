@@ -9,9 +9,10 @@ var recentMessages = new Object();
 recentMessages.generic = [];
 recentMessages.medias = [];
 
-// jcw: If we don't construct our userlist as an object it won't
-// be passed by reference and won't be in-common between routes:
+// If we don't construct our userlist and channels as objects,
+// they won't be passed by reference and won't be in-common between routes:
 var userList = new Object();
+var channelList = new Object(['noodletalk']);
 
 var io = require('socket.io').listen(app);
 
@@ -27,8 +28,8 @@ io.sockets.on('connection', function (socket) {
 });
 
 // routes
-require("./routes")(noodle, app, userList);
-require("./routes/message")(noodle, app, io, userList, recentMessages);
+require("./routes")(noodle, app, io, userList, channelList);
+require("./routes/message")(noodle, app, io, userList, recentMessages, channelList);
 require("./routes/auth")(noodle, app, settings, io, userList);
 
 app.listen(settings.options.port);

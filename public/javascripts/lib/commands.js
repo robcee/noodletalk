@@ -2,11 +2,12 @@
 var commandIsMatched = false;
 var helpMatcher = /^(\/help)/i;
 var clearMatcher = /^(\/clear)/i;
-var usersMatcher = /^(\/users)/i;
+var usersMatcher = /^(\/((users)|(u)))/i;
 var logoutMatcher = /^(\/logout)/i;
 var fontMatcher = /^(\/font)/i;
 var joinMatcher = /^(\/((join)|(j)))/i;
 var leaveMatcher = /^(\/leave|\/part)/i;
+var channelsMatcher = /^(\/((channels)|(c)))/i;
 
 var commandMatched = function(matcher) {
   if ($('form input[name="message"]').val().match(matcher)) {
@@ -18,7 +19,7 @@ var commandMatched = function(matcher) {
 var checkCommands = function(form) {
   // if this is a help trigger, open up the help window
   if (commandMatched(helpMatcher)) {
-    hideAllCommands('#userList');
+    hideAllCommands('#userList, #channels');
     $('#help').fadeIn();
     commandIsMatched = true;
 
@@ -29,7 +30,7 @@ var checkCommands = function(form) {
 
   // if this is a users trigger, display the user list
   } else if (commandMatched(usersMatcher)) {
-    hideAllCommands('#help');
+    hideAllCommands('#help, #channels');
     $('#userList').fadeIn();
     commandIsMatched = true;
   
@@ -58,6 +59,12 @@ var checkCommands = function(form) {
     hideAllCommands();
     commandIsMatched = true;
     window.close();
+
+  // channels list
+  } else if (commandMatched(channelsMatcher)) {
+    hideAllCommands();
+    commandIsMatched = true;
+    $('#channels').fadeIn();
   }
 
   if (commandIsMatched) {
@@ -71,5 +78,6 @@ var hideAllCommands = function(options) {
   } else {
     $('#help').fadeOut();
     $('#userList').fadeOut();
+    $('#channels').fadeOut();
   }
 }

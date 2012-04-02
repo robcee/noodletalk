@@ -1,4 +1,4 @@
-module.exports = function(noodle, app, userList) {
+module.exports = function(noodle, app, io, userList, channelList) {
   var auth = require('../lib/authenticate');
 
   app.get("/", function (req, res) {
@@ -23,6 +23,8 @@ module.exports = function(noodle, app, userList) {
       }
       var nickname = req.session.nickname[channel];
     }
+
+    io.sockets.emit('channels', channelList);
     res.render('index', { title: 'Noodle Talk', channel: channel, nickname: nickname });
   });
 
