@@ -49,7 +49,7 @@ define(['jquery'],
       // if this is a logout trigger, log the user out
       } else if(commandMatched(logoutMatcher)) {
         commandIsMatched = true;
-        document.location.href = '/about/' + $('body').data('channel') + '/logout';
+        navigator.id.logout();
 
       // switch fonts
       } else if(commandMatched(fontMatcher)) {

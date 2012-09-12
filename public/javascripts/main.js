@@ -12,8 +12,8 @@ define(['jquery', 'commands', 'messages', 'users'],
   function($, commands, messages, users) {
 
   var currentChannel = $('body').data('channel');
-  var loginForm = $('#login');
   var messageForm = $('#message');
+  var login = $('#login');
   var socket = io.connect(location.protocol + '//' + location.hostname +
     (location.port ? ':' + location.port : ''));
 
@@ -28,23 +28,42 @@ define(['jquery', 'commands', 'messages', 'users'],
     users.setUserList(data);
   });
 
-  $('#login').click(function() {
-    navigator.id.getVerifiedEmail(function(assertion) {
-      if (assertion) {
-        var loginFormEl = loginForm.find('form');
-
-        loginFormEl.find('input:first').val(assertion);
-        $.post('/about/' + $('body').data('channel') + '/login',
-          loginFormEl.serialize(), function (data) {
-          loginForm.removeClass('enabled').addClass('disabled');
-          messageForm.removeClass('disabled').addClass('enabled');
-          messageForm.find('form').addClass('font' + data.font);
-        });
-      }
-    });
-
-    return false;
+  $('#login').click(function(ev) {
+    ev.preventDefault();
+    navigator.id.request();
   });
+
+  navigator.id.watch({
+    loggedInEmail: currentUser,
+    onlogin: function(assertion) {
+      $.ajax({
+        type: 'POST',
+        url: '/login',
+        data: { assertion: assertion },
+        success: function(res, status, xhr) {
+          messageForm.removeClass('disabled').addClass('enabled');
+          messageForm.find('form').addClass('font' + res.font);
+          login.remove();
+          currentUser = res.email;
+        },
+        error: function(res, status, xhr) {
+          alert('login failure ' + res);
+        }
+      });
+    },
+    onlogout: function() {
+      $.ajax({
+        type: 'GET',
+        url: '/logout',
+        success: function(res, status, xhr) {
+          window.location.reload();
+        },
+        error: function(res, status, xhr) {
+          console.log('logout failure ' + res);
+        }
+      });
+    }
+});
 
   $(window, 'input').focus(function() {
     messages.clearUnreadMessages(currentChannel);

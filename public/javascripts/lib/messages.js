@@ -7,7 +7,7 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
   var messageList = $('body #messages ol');
   var currentChannel = $('body').data('channel');
   var logLimit = 80;
-  var mediaLimit = 5;
+  var mediaLimit = 10;
   var myPost = false;
   var mediaIframeMatcher = /<iframe\s.+><\/iframe>/i;
   var mediaObjectMatcher = /<object\s.+><\/object>/i;

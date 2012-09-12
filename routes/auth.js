@@ -6,10 +6,11 @@ var noodleRedis = require('../lib/noodle-redis');
 
 module.exports = function(client, nconf, app, io, isLoggedIn) {
   // Login
-  app.post('/about/:channel/login', function(req, res) {
+  app.post('/login', function(req, res) {
     auth.verify(req, nconf, function(err, email) {
       if (err || !email) {
-        res.json({ 'status': 500, 'error': err });
+        res.status(500);
+        res.json({ 'error': err });
 
       } else {
         var channel = escape(req.params.channel);
@@ -23,17 +24,20 @@ module.exports = function(client, nconf, app, io, isLoggedIn) {
           req.session.emailHash = userHash.emailHash;
           messageMaker.getMessage(client, channel, req, io, 'joined', function(errMsg, message) {
             if (errMsg) {
-              res.json({ 'status': 500, 'error': errMsg });
+              res.status(500);
+              res.json({ 'error': errMsg });
 
             } else {
               noodleRedis.getUserlist(client, channel, function(errUser, userList) {
                 if (errUser) {
-                  res.json({ 'status': 500, 'error': errUser });
+                  res.status(500);
+                  res.json({ 'error': errUser });
 
                 } else {
                   io.sockets.in(channel).emit('userlist', userList);
                   io.sockets.in(channel).emit('message', message);
                   res.json({
+                    'email': req.session.email,
                     'channel': channel,
                     'font': req.session.userFont
                   });
@@ -47,8 +51,10 @@ module.exports = function(client, nconf, app, io, isLoggedIn) {
   });
 
   // Logout
-  app.get("/about/:channel/logout", isLoggedIn, function(req, res) {
+  app.get('/logout', isLoggedIn, function(req, res) {
     req.session.reset();
-    res.redirect('/');
+    res.json({
+      'message': 'logged out'
+    });
   });
 };

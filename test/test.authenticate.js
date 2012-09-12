@@ -26,7 +26,7 @@ describe('login', function() {
 
       var params = {
         body: {
-          bid_assertion: qs.assertion
+          assertion: qs.assertion
         }
       };
 
@@ -46,7 +46,7 @@ describe('login', function() {
 
       var params = {
         body: {
-          bid_assertion: qs.assertion
+          assertion: qs.assertion
         }
       };
 

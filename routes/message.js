@@ -11,20 +11,29 @@ module.exports = function(client, nconf, app, io, isLoggedIn) {
     var channel = escape(req.params.channel);
     noodleRedis.getRecentMessages(client, channel, function(err, messages) {
       if (err) {
-        res.json({ 'status': 500, 'error': userErr });
+        res.status(500);
+        res.json({ 'error': err });
 
       } else {
-        var channelMessages = {};
+        noodleRedis.getRecentMedia(client, channel, function(errMedia, medias) {
+          if (errMedia) {
+            res.status(500);
+            res.json({ 'error': errMedia });
 
-        channelMessages.generic = messages || {};
-        channelMessages.media = {};
+          } else {
+            var channelMessages = {};
 
-        io.sockets.in(channel).emit('userlist', []);
+            channelMessages.generic = messages || {};
+            channelMessages.media = medias || {};
 
-        res.json({
-          'messages': channelMessages,
-          'connected_clients': io.sockets.clients(channel).length,
-          'user_list': []
+            io.sockets.in(channel).emit('userlist', []);
+
+            res.json({
+              'messages': channelMessages,
+              'connected_clients': io.sockets.clients(channel).length,
+              'user_list': []
+            });
+          }
         });
       }
     });
