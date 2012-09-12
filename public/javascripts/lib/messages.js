@@ -15,29 +15,7 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
   var mediaAudioMatcher = /<audio\s.+>.+<\/audio>/i;
   var mediaImageMatcher = /\.((jpg)|(jpeg)|(png)|(gif))<\/a>/i;
   var isSubmitting = false;
-
-  var updateMedia = function(data) {
-    var mediaColumn = $('#media ol');
-    var message = $.trim(data.message);
-
-    // Update the media
-    if(message.match(mediaIframeMatcher) ||
-      message.match(mediaObjectMatcher) ||
-      message.match(mediaVideoMatcher) ||
-      message.match(mediaAudioMatcher) ||
-      (message.match(mediaImageMatcher) &&
-      message.indexOf('class="emoti"') === -1)) {
-
-      var mediaItem = $('<li class="font' + data.font + '" data-created="' + data.created +'"></li>');
-
-      if (mediaColumn.find('li[data-created="' + data.created + '"').length === 0) {
-        mediaColumn.prepend(mediaItem.html(message + '<a href="#" class="delete">x</a>'));
-        if (mediaColumn.find('li').length > mediaLimit) {
-          mediaColumn.find('li:last-child').remove();
-        }
-      }
-    }
-  };
+  var mediaColumn = $('#media ol');
 
   var determineClientOrServer = function(data, highlight, messageContent) {
     var msg = '';
@@ -94,6 +72,28 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
       document.title = '#' + currentChannel;
     },
 
+    updateMedia: function(data) {
+      var message = $.trim(data.message);
+
+      // Update the media
+      if(message.match(mediaIframeMatcher) ||
+        message.match(mediaObjectMatcher) ||
+        message.match(mediaVideoMatcher) ||
+        message.match(mediaAudioMatcher) ||
+        (message.match(mediaImageMatcher) &&
+        message.indexOf('class="emoti"') === -1)) {
+
+        var mediaItem = $('<li class="font' + data.font + '" data-created="' + data.created +'"></li>');
+
+        if (mediaColumn.find('li[data-created="' + data.created + '"').length === 0) {
+          mediaColumn.prepend(mediaItem.html(message + '<a href="#" class="delete">x</a>'));
+          if (mediaColumn.find('li').length > mediaLimit) {
+            mediaColumn.find('li:last-child').remove();
+          }
+        }
+      }
+    },
+
     updateMessage: function(data) {
       // Update the message
       var message = $.trim(data.message);
@@ -106,9 +106,6 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
 
       if (message.length > 0 && $('ol li[data-created="' + data.created + '"]').length === 0) {
         determineClientOrServer(data, highlight, message);
-
-        // Add media if relevant
-        updateMedia(data);
       }
 
       if (myPost) {
@@ -139,6 +136,8 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
           success: function(data) {
             $('form input').val('');
             self.clearUnreadMessages();
+            self.updateMessage(data);
+            self.updateMedia(data);
             isSubmitting = false;
           },
           dataType: 'json'

@@ -25,6 +25,10 @@ define(['jquery', 'commands', 'messages', 'users'],
       messages.updateMessage(messageList.generic[i]);
     }
 
+    for (var i = 0; i < messageList.media.length; i ++) {
+      messages.updateMedia(messageList.media[i]);
+    }
+
     users.setUserList(data);
   });
 
@@ -63,7 +67,7 @@ define(['jquery', 'commands', 'messages', 'users'],
         }
       });
     }
-});
+  });
 
   $(window, 'input').focus(function() {
     messages.clearUnreadMessages(currentChannel);
