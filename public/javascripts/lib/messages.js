@@ -13,6 +13,8 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
   var mediaObjectMatcher = /<object\s.+><\/object>/i;
   var mediaVideoMatcher = /<video\s.+>.+<\/video>/i;
   var mediaAudioMatcher = /<audio\s.+>.+<\/audio>/i;
+  var serviceInstagram = /(((instagr\.am)|(instagram\.com))\/\w\/\w+)/i;
+  var serviceRdio = /(((rdio\.com)|(rd\.io))\/[A-Z0-9-_]+\/[A-Z0-9-_]+)/gi;
   var mediaImageMatcher = /\.((jpg)|(jpeg)|(png)|(gif))<\/a>/i;
   var isSubmitting = false;
   var mediaColumn = $('#media ol');
@@ -78,8 +80,8 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
       // Update the media
       if(message.match(mediaIframeMatcher) ||
         message.match(mediaObjectMatcher) ||
-        message.match(mediaVideoMatcher) ||
-        message.match(mediaAudioMatcher) ||
+        message.match(serviceInstagram) ||
+        message.match(serviceRdio) ||
         (message.match(mediaImageMatcher) &&
         message.indexOf('class="emoti"') === -1)) {
 
