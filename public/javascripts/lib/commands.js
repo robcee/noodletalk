@@ -11,7 +11,6 @@ define(['jquery'],
   var joinMatcher = /^(\/((join)|(j)))/i;
   var meMatcher = /^(\/me\s)\w?/i;
   var nickMatcher = /^(\/nick\s)\w?/i;
-  var mediaToggleMatcher = /^(\/media\s(off|on))/i;
   var slashMatcher = /^(\/)\w?/i;
 
   var commandMatched = function(matcher) {
@@ -65,21 +64,6 @@ define(['jquery'],
         commandIsMatched = true;
         var channel = $('form input[name="message"]').val().replace(/^\/((join)|(j)) #?/, '');
         window.open('/about/' + escape(channel.toLowerCase()), '_blank');
-
-      // personal options toggle
-      } else if (commandMatched(mediaToggleMatcher)) {
-        this.hideAllCommands();
-        commandIsMatched = true;
-        var mediaToggle = form.find('input').val().split(' ')[1];
-
-        $.post('/options', { userOptions: mediaToggle }, function(data) {
-          if (data.options === 'mediaOff') {
-            $('body').data('options', 'mediaOff');
-          } else {
-            $('body').data('options', 'mediaOn');
-          }
-          document.location.href = document.location.href;
-        });
 
       } else if (commandMatched(meMatcher)) {
         // pass

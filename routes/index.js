@@ -47,20 +47,6 @@ module.exports = function(client, noodle, nconf, app, io) {
     });
   });
 
-  // Set options
-  app.post('/options', function(req, res) {
-    var userOption = 'mediaOn';
-
-    if (req.body.userOptions === 'off') {
-      userOption = 'mediaOff';
-    }
-
-    req.session.userOptions = userOption;
-    res.json({
-      'options': req.session.userOptions
-    });
-  });
-
   // Request the current version number
   app.get('/version', function(req, res) {
     res.json({

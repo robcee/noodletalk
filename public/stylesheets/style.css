@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -12,8 +12,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
     margin: 0;
@@ -24,7 +24,7 @@ time, mark, audio, video {
     vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
     display: block;
 }
@@ -138,7 +138,7 @@ img.hush {
 }
 
 body {
-    background-color: #eae9e6;
+    background-color: #f1f1f1;
     padding: 10px;
     font: 16px Helvetica, Arial, sans-serif;
 }
@@ -214,9 +214,9 @@ ol {
 }
 
 ol li, #profile {
-    background-color: #f1f1f1;
+    background-color: #f2f2f2;
     border-radius: 3px;
-    box-shadow: #ccc -1px -1px 0px;
+    border: 1px solid #ddd;
     clear: both;
     float: left;
     margin-bottom: 5px;
@@ -227,39 +227,19 @@ ol li, #profile {
 }
 
 ol li span.nick {
-    color: #888;
-    font-family: 'BebasNeueRegular', sans-serif;
+    color: #aaa;
+    font-family: 'CabinSketchRegular';
     font-size: 15px;
     left: 55px;
     position: absolute;
-    top: 5px;
+    top: 6px;
 }
 
-ol li iframe, ol li audio, ol li video, ol li object {
+ol li iframe, ol li object {
     clear: both;
     display: block;
     float: left;
     margin: 10px;
-}
-
-body[data-options="mediaOff"] #messages {
-    width: 1319px;
-}
-
-body[data-options="mediaOff"] #messages li p iframe,
-body[data-options="mediaOff"] #messages li p object,
-body[data-options="mediaOff"] #messages li p img,
-body[data-options="mediaOff"] #messages li p audio,
-body[data-options="mediaOff"] #messages li p video {
-    display: none;
-}
-
-body[data-options="mediaOff"] #media {
-    display: none;
-}
-
-body[data-options="mediaOff"] #messages li .media-link {
-    display: block;
 }
 
 .wrapper {
@@ -281,46 +261,32 @@ body[data-options="mediaOff"] #messages li .media-link {
     margin-top: 5px;
 }
 
-#messages ol li audio {
-    width: 100px;
-}
-
-#media ol li audio {
-    width: 97%;
-}
-
-#messages ol li video, #messages ol li iframe, #messages ol li object {
+#messages ol li iframe, #messages ol li object {
     height: 85px;
     overflow: hidden;
     width: 100px;
 }
 
-#media ol li video, #media ol li iframe, #media ol li object {
+#media ol li iframe, #media ol li object {
     height: 253px;
     overflow: hidden;
     width: 450px;
 }
 
-#media ol li .rdio {
-  height: 80px;
-}
-
-#media ol li audio {
-    width: 97%;
-}
-
 ol li time {
-    color: #999;
-    float: right;
-    font-family: 'BebasNeueRegular', sans-serif;
-    font-size: 14px;
+    display: inline-block;
+    color: #aaa;
+    font-family: 'CabinSketchRegular';
+    margin: 20px 0 0 5px;
+    font-size: 15px;
 }
 
 #messages ol li img.avatar {
+    border-radius: 3px;
     float: left;
-    height: 40px;
+    height: 38px;
     margin-bottom: 5px;
-    width: 40px;
+    width: 38px;
 }
 
 ol li p {
@@ -378,7 +344,6 @@ form input {
     font-size: 20px;
     margin: 3px 0px 0px 0px;
     padding: 5px;
-    width: 85%;
 }
 
 form input , ol li, form.font1, .font1, form.font2, .font2 {
@@ -539,6 +504,10 @@ body.error .arrow {
     padding-right: 5px;
 }
 
+#messages ol li p img.emoti {
+    width: 30px;
+}
+
 @media only screen and (min-width: 1000px) and (max-width: 1350px) {
     .wrapper {
         width: 1000px;
@@ -556,11 +525,8 @@ body.error .arrow {
     #profile {
         width: 979px;
     }
-    body[data-options="mediaOff"] #messages {
-        width: 1005px;
-    }
     form input {
-        width: 800px;
+        width: 935px;
     }
 }
 
@@ -581,11 +547,8 @@ body.error .arrow {
     #media {
         width: 480px;
     }
-    body[data-options="mediaOff"] #messages {
-        width: 831px;
-    }
     form input {
-        width: 680px;
+        width: 765px;
     }
     ol li span.nick {
         display: block;
@@ -602,7 +565,7 @@ body.error .arrow {
     form input {
         width: 400px;
     }
-    #messages ol li video, #messages ol li iframe, #messages ol li object {
+    #messages ol li iframe, #messages ol li object {
         height: 338px;
         width: 600px;
     }
@@ -618,11 +581,8 @@ body.error .arrow {
     #profile {
         width: 625px;
     }
-    body[data-options="mediaOff"] #messages {
-        width: 642px;
-    }
     form input {
-        width: 495px;
+        width: 580px;
     }
     #media {
         display: none;
@@ -645,7 +605,7 @@ body.error .arrow {
     .info-block {
         width: 280px;
     }
-    #messages ol li video, #messages ol li iframe, #messages ol li object {
+    #messages ol li iframe, #messages ol li object {
         height: 180px;
         width: 320px;
     }
@@ -658,11 +618,8 @@ body.error .arrow {
     ol li p img {
         max-width: 100%;
     }
-    body[data-options="mediaOff"] #messages {
-        width: 350px;
-    }
     form input {
-        width: 240px;
+        width: 300px;
     }
     #profile h2 {
         overflow: hidden;
@@ -676,7 +633,7 @@ body.error .arrow {
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;
-        width: 175px;
+        width: 285px;
     }
 }
 
@@ -684,7 +641,7 @@ body.error .arrow {
     .wrapper {
         width: 300px;
     }
-    #messages, body[data-options="mediaOff"] #messages {
+    #messages {
         width: 300px;
     }
     #profile {
@@ -708,17 +665,17 @@ body.error .arrow {
         text-overflow: ellipsis;
         width: 210px;
     }
-    #messages ol li video, #messages ol li iframe, #messages ol li object {
+    #messages ol li iframe, #messages ol li object {
         height: 154px;
         width: 275px;
     }
     form input {
-        width: 240px;
+        width: 243px;
     }
     ol li span.nick {
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;
-        width: 132px;
+        width: 242px;
     }
 }
