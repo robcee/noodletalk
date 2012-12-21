@@ -58,16 +58,3 @@ describe('login', function() {
     });
   });
 });
-
-describe('rss', function() {
-  describe('GET /generate', function() {
-    it('generates an rss key', function(done) {
-      var emailHash = '12345abc';
-
-      auth.generateRSSKey(client, emailHash, function(err, rssKey) {
-        should.exist(rssKey);
-        done();
-      });
-    });
-  });
-});

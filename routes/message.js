@@ -1,7 +1,7 @@
 'use strict';
 
 var auth = require('../lib/authenticate');
-var content = require('../lib/web-remix');
+var content = require('../lib/utils');
 var messageMaker = require('../lib/message-maker');
 var noodleRedis = require('../lib/noodle-redis');
 
