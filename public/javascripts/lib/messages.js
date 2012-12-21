@@ -11,11 +11,9 @@ define(['jquery', 'commands', 'time-format', 'version-timeout'],
   var myPost = false;
   var mediaIframeMatcher = /<iframe\s.+><\/iframe>/i;
   var mediaObjectMatcher = /<object\s.+><\/object>/i;
-  var mediaVideoMatcher = /<video\s.+>.+<\/video>/i;
-  var mediaAudioMatcher = /<audio\s.+>.+<\/audio>/i;
   var serviceInstagram = /(((instagr\.am)|(instagram\.com))\/\w\/\w+)/i;
   var serviceRdio = /(((rdio\.com)|(rd\.io))\/[A-Z0-9-_]+\/[A-Z0-9-_]+)/gi;
-  var mediaImageMatcher = /\.((jpg)|(jpeg)|(png)|(gif))<\/a>/i;
+  var mediaImageMatcher = /(\.jpg)|(\.jpeg)|(\.png)|(\.gif)/i;
   var isSubmitting = false;
   var mediaColumn = $('#media ol');
 
