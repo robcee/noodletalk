@@ -1,3 +1,5 @@
+extend layout
+
 mixin messageForm(enabled)
   #message(class='#{enabled}')
     form(method='post', action='/about/#{channel}/message', autocomplete='off', class='font#{session.userFont || 0}')
@@ -7,27 +9,28 @@ mixin messageForm(enabled)
 mixin loginForm(enabled)
   a(href='#', id='login', class='#{enabled}') Log in
 
-.wrapper
-  block header
-  #header
-    a(href='/')
-      h1 Noodle Talk
+block content
+  .wrapper
+    block header
+    #header
+      a(href='/')
+        h1 Noodle Talk
 
-    if session.email
-      mixin messageForm('enabled')
-    else
-      mixin messageForm('disabled')
-
-    #info
       if session.email
-        mixin loginForm('disabled')
+        mixin messageForm('enabled')
       else
-        mixin loginForm('enabled')
+        mixin messageForm('disabled')
 
-  #messages
-    ol
+      #info
+        if session.email
+          mixin loginForm('disabled')
+        else
+          mixin loginForm('enabled')
 
-  #media
-    ol
+    #messages
+      ol
 
-  include _help
+    #media
+      ol
+
+    include _help

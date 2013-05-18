@@ -12,6 +12,7 @@ module.exports = function(app, configurations, express) {
   app.configure(function(){
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
+    app.set('view options', { layout: false });
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(express.static(__dirname + '/public'));
@@ -27,6 +28,11 @@ module.exports = function(app, configurations, express) {
       // initial cookieing.
       duration: 24 * 60 * 60 * 1000 * 21, // 3 weeks
     }));
+    app.use(function(req, res, next) {
+      res.locals.session = req.session;
+      next();
+    });
+    app.locals.pretty = true;
     app.use(app.router);
     app.use(function(req, res, next) {
       res.status(403);
@@ -59,12 +65,6 @@ module.exports = function(app, configurations, express) {
   app.configure('production', function() {
     app.use(express.errorHandler());
     app.set('redisnoodle', nconf.get('redis_prod'));
-  });
-
-  app.dynamicHelpers({
-    session: function (req, res) {
-      return req.session;
-    }
   });
 
   return app;

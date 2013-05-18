@@ -13,7 +13,7 @@
     "gravatar": "1.0.6",
     "jade": ">= 0.27.2",
     "request": "git://github.com/mikeal/request.git",
-    "socket.io": "0.9.13",
+    "socket.io": "0.9.14",
     "hiredis": "0.1.14",
     "redis": "0.7.2",
     "nconf": "git://github.com/flatiron/nconf.git",

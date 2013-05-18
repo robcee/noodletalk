@@ -2,9 +2,9 @@
     "domain": "http://localhost",
     "port": 3000,
     "authPort": 3000,
-    "authUrl": "https://browserid.org",
+    "authUrl": "https://login.persona.org",
     "session_secret": "secret",
-    "session_cookie": "session_noodletalk",
+    "session_cookie": "session",
     "redis_dev": 1,
     "redis_test": 2,
     "redis_prod": 0

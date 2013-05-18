@@ -3,7 +3,8 @@
 var noodle = require('./package');
 var express = require('express');
 var configurations = module.exports;
-var app = express.createServer();
+var app = express();
+var server = require('http').createServer(app);
 var redis = require('redis');
 var client = redis.createClient();
 var nconf = require('nconf');
@@ -15,7 +16,7 @@ client.select(app.set('redisnoodle'), function(errDb, res) {
   console.log(process.env.NODE_ENV || 'dev' + ' database connection status: ', res);
 });
 
-var io = require('socket.io').listen(app);
+var io = require('socket.io').listen(server);
 
 io.configure(function() {
   io.set('transports', ['xhr-polling']);
@@ -55,4 +56,4 @@ app.get('/500', function(req, res, next){
   next(new Error('something went wrong!'));
 });
 
-app.listen(process.env.PORT || nconf.get('port'));
+server.listen(process.env.PORT || nconf.get('port'));
