@@ -1,50 +1,59 @@
-"use strict";
+'use strict';
+
 var noodle = require('./package');
 var express = require('express');
 var configurations = module.exports;
-var app = express.createServer();
+var app = express();
+var server = require('http').createServer(app);
+var redis = require('redis');
+var client = redis.createClient();
+var nconf = require('nconf');
 var settings = require('./settings')(app, configurations, express);
 
-var recentMessages = new Object();
-recentMessages.generic = [];
-recentMessages.medias = [];
+nconf.argv().env().file({ file: 'local.json' });
 
-// jcw: If we don't construct our userlist as an object it won't
-// be passed by reference and won't be in-common between routes:
-var userList = new Object();
-
-var io = require('socket.io').listen(app);
-
-io.configure(function () { 
-  io.set("transports", ["xhr-polling"]); 
-  io.set("polling duration", 10);
+client.select(app.set('redisnoodle'), function(errDb, res) {
+  console.log(process.env.NODE_ENV || 'dev' + ' database connection status: ', res);
 });
 
-io.sockets.on('connection', function (socket) {
-  socket.on('join channel', function (channel) {
+var io = require('socket.io').listen(server);
+
+io.configure(function() {
+  io.set('transports', ['xhr-polling']);
+  io.set('polling duration', 10);
+  io.set('log level', 1);
+});
+
+io.sockets.on('connection', function(socket) {
+  socket.on('join channel', function(channel) {
     socket.join(channel);
-    socket.set('channel', channel);
-  });
-  socket.on('reply', function (data) {
-    var avatarURL = '';
-    userList[data.channel].forEach(function (u, i, a) {
-      if (u.username === data.nickname) {
-        avatarURL = u.avatar;
-      }
-    });
-    io.sockets.in(data.channel).emit('reply', {
-      reply: data.message,
-      user: {
-        nickname: data.nickname,
-        avatar: avatarURL
-      }
-    });
   });
 });
+
+var isLoggedIn = function(req, res, next) {
+  if (req.session.email) {
+    next();
+  } else {
+    res.redirect('/');
+  }
+}
 
 // routes
-require("./routes/message")(noodle, app, io, userList, recentMessages);
-require("./routes")(noodle, app, userList);
-require("./routes/auth")(noodle, app, settings, io, userList);
+require('./routes')(client, noodle, nconf, app, io);
+require('./routes/message')(client, nconf, app, io, isLoggedIn);
+require('./routes/auth')(client, nconf, app, io, isLoggedIn);
 
-app.listen(settings.options.port);
+app.get('/404', function(req, res, next){
+  next();
+});
+
+app.get('/403', function(req, res, next){
+  err.status = 403;
+  next(new Error('not allowed!'));
+});
+
+app.get('/500', function(req, res, next){
+  next(new Error('something went wrong!'));
+});
+
+server.listen(process.env.PORT || nconf.get('port'));

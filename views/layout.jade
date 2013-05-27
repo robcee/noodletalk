@@ -6,83 +6,21 @@ html
     meta(content='yes', name='apple-mobile-web-app-capable')
     meta(content='chrome=1', http-equiv='X-UA-Compatible')
     link(rel='shortcut icon', href='/images/favicon.png')
-    link(rel='apple-touch-icon', sizes='72x72' href="/images/apple-touch-icon-ipad.png')
+    link(rel='apple-touch-icon', sizes='72x72', href='/images/apple-touch-icon-ipad.png')
     link(rel='apple-touch-icon', href='/images/apple-touch-icon-iphone4.png')
+    link(rel='app-manifest', href='/noodletalk.webapp')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
-    script(src='https://browserid.org/include.js', type='text/javascript')
-    script(src='/socket.io/socket.io.js')
-    script(src='/javascripts/lib/tab-complete.js')
-    script(src='/javascripts/lib/time-format.js')
-    script(src='/javascripts/lib/commands.js')
-    script(src='/javascripts/lib/disable-scrolling.js')
-    script(src='/javascripts/main.js')
 
-  body(data-nick=nickname, data-channel=channel, data-base-channel=baseChannel)
+  body(data-nick=nickname, data-channel=channel, data-avatar=avatar, data-email-hash=session.emailHash)
     #hush
-    #header
-      h1 Noodle Talk
 
-      if session.email
-        #message
-          form(method='post', action='/about/#{channel}/message', autocomplete='off', class='font#{session.userFont}')
-            input(type='text', name='message', placeholder='enter your message here or type /help for more commands')
-            button(type='submit') add
-      
-      if thread
-        h2(class='thread') in response to #{thread}
-
-      div#info
-        a(href='#', id='messageIndicator')
-        a(href='https://github.com/ednapiranha/noodletalk', target='_blank') Github
-        if !session.email
-          a(href='#', id='login') Log in
-          form(method='post', action='/about/#{channel}/login', id='login-form')
-            input(type='hidden', name='bid_assertion', value='1')
-
-    != body
-
-    #userList(class='listBox')
-      a(class='close') x
-      h2 Current Noodlers
-        ul#noodlers
-
-    #help(class='listBox')
-      a(class='close') x
-      h2 Noodle Talk Commands
-
-      ul
-        li
-          span /clear
-          = ' removes all messages from your screen'
-        li
-          span /font
-          = ' changes to a new random font'
-        li
-          span /help
-          = ' displays all available commands'
-        li
-          span /logout
-          = ' log out of the site'
-        li
-          span /nick your_nick
-          = ' changes your nickname'
-        li
-          span /me your message here
-          = ' makes an action item from your message'
-        li
-          span /users
-          = ' displays the current list of users'
-        li
-          span /join or /j #channel
-          = ' opens #channel in a new window'
-        li
-          span /leave or /part
-          = ' closes the current channel window'
-
-     #messageBox(class='listBox')
-       a(class='close') x
-       h2 Personal Messages
-         ul#messageList
+    block content
 
     #footer
+      script(type='text/javascript')
+        var currentUser = null;
+      if session.email
+        != '<script type="text/javascript">currentUser = "' + session.email + '";</script>'
+      script(src='https://login.persona.org/include.js', type='text/javascript')
+      script(src='/socket.io/socket.io.js')
+      script(src='/javascripts/require.js', data-main='/javascripts/main')

@@ -1,54 +1,56 @@
-module.exports = function(noodle, app, userList) {
-  var auth = require('../lib/authenticate');
+'use strict';
 
-  app.get("/", function (req, res) {
+var auth = require('../lib/authenticate');
+var gravatar = require('gravatar');
+var noodleRedis = require('../lib/noodle-redis');
+var crypto = require('crypto');
+
+module.exports = function(client, noodle, nconf, app, io) {
+  app.get('/', function (req, res) {
     res.redirect('/about/noodletalk');
   });
 
-  app.get("/about/:channel?/:thread?", function(req, res) {
-    var channel = req.params.channel;
-    if (!channel) {
+  app.get('/about/:channel?', function(req, res) {
+    var avatar = '';
+    var nickname = '';
+    var channel = escape(req.params.channel.replace(/\s/, ''));
+
+    if (!req.params.channel || !channel) {
       res.redirect('/about/noodletalk');
     }
-    var baseChannel = channel;
-    var thread = req.params.thread;
-    var unslugThread = null;
-    if (thread) {
-      channel += '/' + thread;
-      unslugThread = thread.replace(/:/, ': ').replace(/\-/g, ' ');
-    }
-    if (!userList[channel]) {
-      userList[channel] = [];
-    }
-    var nickname = null;
+
     if (req.session.email) {
-      if (!req.session.nickname) {
-        req.session.nickname = new Object();
-      }
+      avatar = gravatar.url(req.session.email, {}, true);
       if (!req.session.nickname[channel]) {
-        if (thread) {
-          req.session.nickname[channel] = req.session.nickname[baseChannel];
-        }
-        if (!req.session.nickname[channel]) {
-          req.session.nickname[channel] = auth.generateRandomNick(userList[channel]);
-        }
+        req.session.nickname[channel] = auth.generateRandomNick();
       }
-      var nickname = req.session.nickname[channel];
-      req.session.updated = new Date();
+      nickname = req.session.nickname[channel];
     }
-    res.render('index', {
-      title: 'Noodle Talk',
-      channel: channel,
-      baseChannel: baseChannel,
-      thread: unslugThread,
-      nickname: nickname
+
+    noodleRedis.getUserlist(client, channel, function(err, userList) {
+      io.sockets.in(channel).emit('userlist', userList);
+      res.render('index', {
+        title: 'Noodle Talk',
+        channel: channel,
+        nickname: nickname,
+        avatar: avatar
+      });
     });
   });
 
-  app.get("/font", function(req, res) {
+  // Change the random font
+  app.get('/font', function(req, res) {
     req.session.userFont = Math.floor(Math.random() * 9);
+    io.sockets.emit('font', req.session.userFont);
     res.json({
       'font': req.session.userFont
+    });
+  });
+
+  // Request the current version number
+  app.get('/version', function(req, res) {
+    res.json({
+      'version': noodle.version
     });
   });
 };

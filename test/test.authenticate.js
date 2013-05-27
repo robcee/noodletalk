@@ -1,40 +1,60 @@
 var assert = require('should');
 var auth = require('../lib/authenticate');
 var nock = require('nock');
+var should = require('should');
+var nconf = require('nconf');
+var querystring = require('querystring');
+var redis = require("redis");
+var client = redis.createClient();
 
-var settings = {};
-settings.options = {
-  domain: 'http://localhost',
-  port: 3000,
-  authUrl: 'https://browserid.org'
-};
+nconf.argv().env().file({ file: 'test/local-test.json' });
 
-var authUrl = settings.options.authUrl + '/verify';
-var siteUrl = settings.options.domain + ':' + settings.options.port;
+var authUrl = nconf.get('authUrl');
+var siteUrl = nconf.get('domain') + ':' + nconf.get('port');
 var qs = { assertion: '1a2b3c', audience: siteUrl };
+var qsString = querystring.stringify(qs);
 
 describe('login', function() {
   describe('POST /verify', function() {
-    it('logs the user in when they have good credentials', function() {
-    var scope = nock(authUrl).post('', qs).reply(200, { status: 'okay', email: 'bela@test.org' });
+    it('logs a user in if he/she has good credentials', function(done) {
+      var response = {
+        status: 'okay',
+        email: 'test@test.org'
+      };
 
-    var params = {
-      body: { bid_assertion: qs.assertion }
-    };
+      var scope = nock(authUrl).post('/verify', qsString).reply(200, response);
 
-    var authResp = auth.verify(params, settings, function(error, email) { });
-      authResp.should.equal(true);
+      var params = {
+        body: {
+          assertion: qs.assertion
+        }
+      };
+
+      auth.verify(params, nconf, function(error, email) {
+        should.not.exist(error);
+        email.should.equal(response.email);
+        done();
+      });
     });
 
-    it('does not log the user in if they have bad credentials', function() {
-    var scope = nock(authUrl).post('', qs).reply(500, { status: 'invalid' });
+    it('does not log a user in if he/she has bad credentials', function(done) {
+      var response = {
+        status: 'invalid'
+      };
 
-    var params = {
-      body: { }
-    };
+      var scope = nock(authUrl).post('/verify', qsString).reply(500, response);
 
-    var authResp = auth.verify(params, settings, function(error, email) { });
-      authResp.should.equal(false);
+      var params = {
+        body: {
+          assertion: qs.assertion
+        }
+      };
+
+      auth.verify(params, nconf, function(error, email) {
+        should.exist(error);
+        error.status.should.equal(response.status);
+        done();
+      });
     });
   });
 });

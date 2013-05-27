@@ -1,131 +1,254 @@
 var express = require('express');
-var assert = require('should');
-var sinon = require('sinon');
 var messages = require('../routes/message');
 var messageMaker = require('../lib/message-maker');
-var app = express.createServer();
+var app = express();
 var io = require('socket.io').listen(app);
-var content = require('../lib/web-remix');
-var userList = { 'noodletalk': new Array() };
+var content = require('../lib/utils');
 var noodle = require('../package');
 var recentMessages = {};
 var channel = 'noodletalk';
+var redis = require("redis");
+var client = redis.createClient();
+var noodleRedis = require('../lib/noodle-redis');
+var nconf = require('nconf');
+var auth = require('../lib/authenticate');
+var http = require('http');
+var addr = null;
+
+nconf.argv().env().file({ file: 'test/local-test.json' });
+
+var isLoggedIn = function(req, res, next) {
+  if (req.session.email) {
+    next();
+  } else {
+    err.status = 403;
+    next(new Error('not allowed!'));
+  }
+}
+
+require('../routes/message')(client, nconf, app, io, isLoggedIn);
+
+client.select(app.set('redisnoodle'), function(errDb, res) {
+  console.log('TEST database connection status: ', res);
+});
 
 describe('message', function() {
+  before(function(done) {
+    app.listen().on('listening', function () {
+      addr = app.address();
+      done();
+    });
+  });
+  after(function() {
+    client.flushdb();
+    console.log('cleared test database');
+  });
   describe('.getMessage', function() {
     describe('has a request body', function() {
       describe('has a nickname change', function() {
 
-        it('sets the session nickname', function() {
+        it('sets the session nickname', function(done) {
           var newNick = 'nick';
-          var req = { 
-            body: { 
+          var req = {
+            body: {
               message: '/nick ' + newNick
+            },
+            params: {
+              channel: 'noodletalk'
             },
             session: {
               nickname: { 'noodletalk': 'oldnick' },
-              email: 'test@test.org'
+              email: 'test@test.org',
+              emailHash: '12345'
             }
           };
-          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-
-          req.session.nickname[channel].should.equal(newNick);
+          messageMaker.getMessage(client, channel, req, io, 'nick', function(err, message) {
+            message.message.should.equal('<em>oldnick has changed to nick</em>');
+            req.session.nickname[channel].should.equal(newNick);
+            done();
+          });
         });
-        it('updates the userList', function() {
-          var newNick = 'nick';
-          var req = { 
-            body: { 
+
+        it('updates the userList', function(done) {
+          var newNick = 'nick123';
+          var req = {
+            body: {
               message: '/nick ' + newNick
+            },
+            params: {
+              channel: 'noodletalk'
             },
             session: {
               nickname: { 'noodletalk': 'oldnick' },
-              email: 'test@test.org'
+              email: 'test@test.org',
+              emailHash: '12345'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-          userList[channel].should.not.include('oldnick');
-        });
+          messageMaker.getMessage(client, channel, req, io, 'nick', function(err, message) {
+            message.message.should.equal('<em>oldnick has changed to nick123</em>');
 
-        describe('nickname is not on the userList', function() {
-          it('adds the nickname to the userList', function() {
-            var newNick = 'nick';
-            var req = { 
-              body: { 
-                message: '/nick ' + newNick
-              },
-              session: {
-                nickname: { 'noodletalk': 'oldnick' },
-                email: 'test@test.org'
-              }
-            };
-
-            var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-
-            req.body.message = "/nick gonzo"
-            var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-
-            req.session.nickname[channel].should.equal('gonzo');
+            noodleRedis.getUserlist(client, channel, function(errUser, users) {
+              client.sismember('channelUserSet:' + channel, newNick, function(errMem, r) {
+                var u = false;
+                r.should.equal(1);
+                for (var i=0; i < users.length; i++) {
+                  if (users[i].nickname === newNick) {
+                    u = true;
+                  }
+                }
+                u.should.equal(true);
+                done();
+              });
+            });
           });
         });
       });
-      
+
       describe('has no nickname change', function() {
-        it('should not change the nickname', function() {
-          var req = { 
-            body: { 
+        it('should not change the nickname', function(done) {
+          var req = {
+            body: {
               message: '/nick'
+            },
+            params: {
+              channel: 'noodletalk'
             },
             session: {
               nickname: { 'noodletalk': 'test' },
-              email: 'test@test.org'
+              email: 'test@test.org',
+              emailHash: '12345'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-
-          req.session.nickname[channel].should.equal('test');
-          message.message.should.equal(' ');
+          noodleRedis.setRecentMessage(client, req, io, function(err, message) {
+            message.message.should.equal('');
+            req.session.nickname[channel].should.equal('test');
+            done();
+          });
         });
       });
 
       describe('has no request session nickname', function() {
-        it('sets the nickname to i_love_ie6xxxxxxx', function() {
-          var req = { 
-            body: { 
+        it('sets the nickname to i_love_ie6xxxxxxx', function(done) {
+          var req = {
+            body: {
               message: 'test'
             },
+            params: {
+              channel: 'noodletalk'
+            },
             session: {
-              nickname: { 'noodletalk': 'i_love_ie61212121' },
-              email: 'test@test.org'
+              nickname: { 'noodletalk': '' },
+              email: 'test@test.org',
+              emailHash: '12345'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-
-          req.session.nickname[channel].should.match(/i_love_ie6.+/);
+          messageMaker.getMessage(client, channel, req, io, 'joined', function(err, message) {
+            req.session.nickname[channel].should.match(/i_love_ie6.+/);
+            done();
+          });
         });
       });
 
       describe('has a /me', function() {
-        it('sets the status of the user', function() {
-          var req = { 
-            body: { 
+        it('sets the status of the user', function(done) {
+          var req = {
+            body: {
               message: '/me is testing'
+            },
+            params: {
+              channel: 'noodletalk'
             },
             session: {
               nickname: { 'noodletalk': 'test' },
-              email: 'test@test.org'
+              email: 'test@test.org',
+              emailHash: '12345'
             }
           };
 
-          var message = messageMaker.getMessage(noodle, channel, req, io, userList);
-
-          message.message.should.equal('<em>test is testing</em>');
+          messageMaker.getMessage(client, channel, req, io, 'activity', function(err, message) {
+            if (message) {
+              message.message.should.equal('<em>test is testing</em>');
+            } else {
+              console.error('Message is undefined');
+            }
+            done();
+          });
         });
       });
 
+      describe('has a /join', function() {
+        it('sets the join message for the user', function(done) {
+          var req = {
+            body: {
+              message: ''
+            },
+            params: {
+              channel: 'noodletalk'
+            },
+            session: {
+              nickname: { 'noodletalk': '' },
+              email: 'test@test.org',
+              emailHash: '12345'
+            }
+          };
+
+          messageMaker.getMessage(client, channel, req, io, 'joined', function(err, message) {
+            if (message) {
+              message.message.should.match(/^[<em>Now introducing,]\w+[<\/em>]/);
+            } else {
+              console.error('Message is undefined');
+            }
+            done();
+          });
+        });
+      });
+
+      describe('has no change', function() {
+        it('ensures no message is broadcasted on a single command', function(done) {
+          var req = {
+            body: {
+              message: '/blah'
+            },
+            params: {
+              channel: 'noodletalk'
+            },
+            session: {
+              nickname: { 'noodletalk': 'test' },
+              email: 'test@test.org',
+              emailHash: '12345'
+            }
+          };
+
+          messageMaker.getMessage(client, channel, req, io, 'dummy', function(err, message) {
+            message.message.should.equal('');
+            done();
+          });
+        });
+
+        it('ensures no message is broadcasted on a command with trailing text', function(done) {
+          var req = {
+            body: {
+              message: '/blah test'
+            },
+            params: {
+              channel: 'noodletalk'
+            },
+            session: {
+              nickname: { 'noodletalk': 'test' },
+              email: 'test@test.org',
+              emailHash: '12345'
+            }
+          };
+
+          messageMaker.getMessage(client, channel, req, io, 'dummy', function(err, message) {
+            message.message.should.equal('');
+            done();
+          });
+        });
+      });
     });
-    //describe('has no request body');
   });
 });
